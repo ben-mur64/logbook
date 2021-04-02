@@ -8,8 +8,8 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <div class="navbar-nav">
-            <router-link class="nav-link" to="/">View</router-link>
-            <router-link class="nav-link" to="/add">Add</router-link>
+            <router-link class="nav-link" to="/">View Log</router-link>
+            <router-link class="nav-link" to="/add">Add Purchase</router-link>
           </div>
         </div>
       </div>
@@ -28,18 +28,19 @@
 
 .nav-link {
   font-size: 1.5rem;
-  color: #FFFFFF;
+  color: #b7c1de;
 }
 
 .navbar {
   width: 100%;
-  background-color: #ec5535;
+  background-color: #0b468c;
   padding-bottom: 0;
   padding-top: 0;
+  margin-bottom: 10px;
 }
 
 .site-title {
-  color: #ffffff;
+  color: #63345e;
   display: flex;
   justify-content: center;
   text-align: center;

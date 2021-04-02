@@ -92,7 +92,7 @@ app.put('/api/purchases/:purchaseID', async (req, res) => {
 });
 
 // Delete a purchase
-app.get('/api/purchase/:purchaseID', async (req, res) => {
+app.delete('/api/purchases/:purchaseID', async (req, res) => {
   try {
     let purchase = await Purchase.findOne({_id: req.params.purchaseID});
     if (!purchase) {
