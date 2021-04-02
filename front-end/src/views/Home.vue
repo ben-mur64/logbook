@@ -1,7 +1,9 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Joe's Logbook</h1>
+    <div class="purchases">
+      <h2>Purchases So Far:</h2>
+    </div>
   </div>
 </template>
 
@@ -13,6 +15,17 @@ export default {
   name: 'Home',
   components: {
     HelloWorld
-  }
+  },
+  data() {
+      return {
+          purchases: [],
+          lineItems: [],
+          purchase: null
+      }
+  },
+  created() {
+      this.getPurchases();
+  },
+
 }
 </script>

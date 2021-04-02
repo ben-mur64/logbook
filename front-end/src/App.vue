@@ -1,9 +1,19 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+  <div class="site-title"><h1>Joe's Logbook</h1></div>
+    <nav class="navbar navbar-expand-lg justify-content-between">
+      <div class="container">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <div class="navbar-nav">
+            <router-link class="nav-link" to="/">View</router-link>
+            <router-link class="nav-link" to="/add">Add</router-link>
+          </div>
+        </div>
+      </div>
+    </nav>
     <router-view/>
   </div>
 </template>
@@ -14,19 +24,29 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
+.nav-link {
+  font-size: 1.5rem;
+  color: #FFFFFF;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+.navbar {
+  width: 100%;
+  background-color: #ec5535;
+  padding-bottom: 0;
+  padding-top: 0;
 }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+.site-title {
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+
+.site-title h1 {
+  font-size: 4rem;
 }
 </style>
