@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="my-purchases">
     <Menu :user="user" />
     <PurchaseView v-if="user" :purchases="purchases" />
     <Login v-else />
@@ -13,7 +13,7 @@ import Menu from '@/components/Menu.vue'
 import PurchaseView from '@/components/PurchaseView.vue'
 
 export default {
-    name: 'Home',
+    name: 'MyPurchases',
     components: {
       Login,
       Menu,
@@ -26,7 +26,7 @@ export default {
     },
     created() {
         this.getUser();
-        this.getPurchases();
+        this.getMyPurchases();
     },
     computed: {
         user() {
@@ -42,9 +42,9 @@ export default {
                 this.$root.$data.user = null;
             }
          },
-        async getPurchases() {
+        async getMyPurchases() {
             try {
-                const response = await axios.get("/api/purchases");
+                const response = await axios.get("/api/purchases/user");
                 this.purchases = response.data;
             } catch (error) {
                 console.log(error);

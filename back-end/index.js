@@ -13,14 +13,37 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 // connect to the database
-mongoose.connect('mongodb://localhost:27017/logbook', {
+mongoose.connect('mongodb://localhost:27017/logbookv2', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: [
+    'secretValue'
+  ],
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// import the users module and setup its API path
+const users = require("./users.js");
+app.use("/api/users", users.routes);
+const User = users.model;
+const validUser = users.valid;
+
 // Create a schema for purchases
 const purchaseSchema = new mongoose.Schema({
-  purchaser: String,
+  purchaser: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+  },
   description: String,
   fulfilled: Boolean,
   shipping: Number,
@@ -43,10 +66,11 @@ const Purchase = mongoose.model('Purchase', purchaseSchema);
 // Model for items
 const LineItem = mongoose.model('LineItem', lineItemSchema);
 
+
 // Create a Purchase
-app.post('/api/purchases', async (req, res) => {
+app.post('/api/purchases', validUser, async (req, res) => {
   const purchase = new Purchase({
-    purchaser: req.body.purchaser,
+    purchaser: req.user,
     description: req.body.description,
     fulfilled: req.body.fulfilled,
     shipping: req.body.shipping,
@@ -61,9 +85,20 @@ app.post('/api/purchases', async (req, res) => {
 });
 
 // Get all purchases
-app.get('/api/purchases', async (req, res) => {
+app.get('/api/purchases', validUser, async (req, res) => {
   try {
-    let purchases = await Purchase.find();
+    let purchases = await Purchase.find().populate("purchaser");
+    res.send(purchases);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+// Get all purchases for user
+app.get('/api/purchases/user', validUser, async (req, res) => {
+  try {
+    let purchases = await Purchase.find({purchaser: req.user}).populate("purchaser");
     res.send(purchases);
   } catch (error) {
     console.log(error);
@@ -72,14 +107,13 @@ app.get('/api/purchases', async (req, res) => {
 });
 
 // Edit a purchase
-app.put('/api/purchases/:purchaseID', async (req, res) => {
+app.put('/api/purchases/:purchaseID', validUser, async (req, res) => {
   try {
     let purchase = await Purchase.findOne({_id: req.params.purchaseID});
     if (!purchase) {
         res.send(404);
         return;
     }
-    purchase.purchaser = req.body.purchaser;
     purchase.description = req.body.description;
     purchase.fulfilled = req.body.fulfilled;
     purchase.shipping = req.body.shipping;
@@ -92,7 +126,7 @@ app.put('/api/purchases/:purchaseID', async (req, res) => {
 });
 
 // Delete a purchase
-app.delete('/api/purchases/:purchaseID', async (req, res) => {
+app.delete('/api/purchases/:purchaseID', validUser, async (req, res) => {
   try {
     let purchase = await Purchase.findOne({_id: req.params.purchaseID});
     if (!purchase) {
@@ -107,7 +141,7 @@ app.delete('/api/purchases/:purchaseID', async (req, res) => {
   }
 });
 
-app.post('/api/purchases/:purchaseID/lineItems', async (req, res) => {
+app.post('/api/purchases/:purchaseID/lineItems', validUser, async (req, res) => {
     try {
         let purchase = await Purchase.findOne({_id: req.params.purchaseID});
         if (!purchase) {
@@ -129,7 +163,7 @@ app.post('/api/purchases/:purchaseID/lineItems', async (req, res) => {
     }
 });
 
-app.get('/api/purchases/:purchaseID/lineItems', async (req, res) => {
+app.get('/api/purchases/:purchaseID/lineItems', validUser, async (req, res) => {
     try {
         let purchase = await Purchase.findOne({_id: req.params.purchaseID});
         if (!purchase) {
@@ -144,7 +178,7 @@ app.get('/api/purchases/:purchaseID/lineItems', async (req, res) => {
     }
 });
 
-app.put('/api/purchases/:purchaseID/lineItems/:lineItemID', async (req, res) => {
+app.put('/api/purchases/:purchaseID/lineItems/:lineItemID', validUser, async (req, res) => {
     try {
         let lineItem = await LineItem.findOne({_id:req.params.lineItemID, purchase: req.params.purchaseID});
         if (!lineItem) {
@@ -163,7 +197,7 @@ app.put('/api/purchases/:purchaseID/lineItems/:lineItemID', async (req, res) => 
     }
 });
 
-app.delete('/api/purchases/:purchaseID/lineItems/:lineItemID', async (req, res) => {
+app.delete('/api/purchases/:purchaseID/lineItems/:lineItemID', validUser, async (req, res) => {
     try {
         let lineItem = await LineItem.findOne({_id:req.params.lineItemID, purchase: req.params.purchaseID});
         if (!lineItem) {
@@ -178,4 +212,4 @@ app.delete('/api/purchases/:purchaseID/lineItems/:lineItemID', async (req, res) 
     }
 });
 
-app.listen(3000, () => console.log('Server listening on port 3000!'));
+app.listen(3003, () => console.log('Server listening on port 3003!'));

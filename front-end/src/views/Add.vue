@@ -1,21 +1,19 @@
 <template>
     <div class="add">
-        <h2>Purchase:</h2>
+        <Menu :user="user" />
+        <div v-if="user">
+        <h2>Update Logbook</h2>
+        <hr />
+        <br />
         <div class="container">
         <!-- Purchase fields -->
-            <form @submit.prevent="addPurchase">
+            <form @submit.prevent="addPurchase" class="pure-form">
                 <div class="form-row">
                     <div class="col">
-                        <label>Purchaser</label>
-                        <input type="text" v-model="purchaser" placeholder="Purchaser">
-                    </div>
-                    <div class="col">
-                        <label>Description</label>
                         <input type="text" v-model="purchaseDescription" placeholder="Description">
                     </div>
                     <div class="col">
-                        <label>Shipping Cost</label>
-                        <input type="text" v-model="shipping">
+                        <input type="text" placeholder="Shipping Cost" v-model="shipping">
                     </div>
                     <div class="col">
                         <label class="form-check-label">Fulfilled?</label>
@@ -31,7 +29,7 @@
 
         <hr />
         <!-- Purchase dropdown -->
-        <div class="form">
+        <div class="pure-form">
         <input v-model="findDesc" placeholder="Search">
             <div class="suggestions mx-auto" v-if="suggestions.length > 0">
                 <div class="suggestion" v-for="s in suggestions" :key="s.id" @click="selectPurchase(s)">{{s.description}}
@@ -46,7 +44,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col">
-                            <p><em>Purchaser:</em> {{findPurchase.purchaser}}</p>
+                            <p><em>Purchaser:</em> {{findPurchase.purchaser.firstName}} {{findPurchase.purchaser.lastName}}</p>
                         </div>
                         <div class="col">
                             <p><em>Description:</em> {{findPurchase.description}}</p>
@@ -84,7 +82,7 @@
             <hr />
             <h2>Add line items:</h2>
             <div class="container">
-                <form @submit.prevent="addLineItem">
+                <form @submit.prevent="addLineItem" class="pure-form">
                     <div class="form-row">
                         <div class="col">
                             <label>Name</label>
@@ -101,7 +99,7 @@
                         <div class="col">
                             <label>Price</label>
                             <br />
-                            <input type="text" v-model="price">
+                            <input type="text" v-model="price" placeholder="Price">
                         </div>
                     </div>
                     <br />
@@ -109,19 +107,27 @@
                 </form>
             </div>
         </div>
+        </div>
+        <Login v-else />
     </div>
 </template>
 
 <script>
- import axios from 'axios';
+import axios from 'axios';
+import Login from '@/components/Login.vue'
+import Menu from '@/components/Menu.vue'
+
  export default {
      name: 'Add',
+     components: {
+         Login,
+         Menu
+     },
      data() {
          return {
              purchases: [],
              findDesc: '',
              findPurchase: null,
-             purchaser: '',
              purchaseDescription: '',
              fulfilled: false,
              shipping: '',
@@ -136,15 +142,27 @@
          suggestions() {
              let ps = this.purchases.filter(purchase => purchase.description.toLowerCase().startsWith(this.findDesc.toLowerCase()));
              return ps.sort((a, b) => a.description > b.description);
+         },
+         user() {
+             return this.$root.$data.user;
          }
      },
      created() {
+         this.getUser();
          this.getPurchases();
      },
      methods: {
+         async getUser() {
+            try {
+                let response = await axios.get('/api/users');
+                this.$root.$data.user = response.data.user;
+            } catch (error) {
+                this.$root.$data.user = null;
+            }
+         },
         async getPurchases() {
             try {
-                const response = await axios.get("/api/purchases");
+                const response = await axios.get("/api/purchases/user");
                 this.purchases = response.data;
             } catch (error) {
                 console.log(error);
